@@ -1,0 +1,19 @@
+{
+  "name": "turno-longo",
+  "version": "0.1.0",
+  "description": "Avisa com notificação do sistema e som quando um turno do Claude que passou de 2 minutos termina.",
+  "userConfig": {
+    "limiteSegundos": {
+      "type": "number",
+      "title": "Limite (segundos)",
+      "description": "Turnos a partir desta duração geram o aviso.",
+      "default": 120
+    },
+    "som": {
+      "type": "boolean",
+      "title": "Tocar som",
+      "description": "Toca um som junto com a notificação.",
+      "default": true
+    }
+  }
+}

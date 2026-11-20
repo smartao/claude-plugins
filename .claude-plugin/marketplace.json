@@ -28,6 +28,11 @@
       "name": "painel-consumo",
       "source": "./mods/painel-consumo",
       "description": "Painel ao lado do chat com quota 5h e 7d e seu ritmo, contexto, custo estimado, tokens e taxa de cache da sessão."
+    },
+    {
+      "name": "turno-longo",
+      "source": "./mods/turno-longo",
+      "description": "Avisa com notificação do sistema e som quando um turno do Claude que passou de 2 minutos termina."
     }
   ]
 }
