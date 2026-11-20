@@ -29,14 +29,11 @@ async function atualizar($: EngineInterface): Promise<void> {
   const ritmo = calcularRitmo(leitura.percentUsed, resetaEm, await $.clock.now())
   $.ui.status(linhaStatus(ritmo))
 
-  // Avisa só na virada para ACIMA da média e na volta, nunca na primeira leitura.
-  const estavaAcima = ultimaSituacao === 'acima'
-  const estaAcima = ritmo.situacao === 'acima'
-  if (ultimaSituacao !== undefined && estavaAcima !== estaAcima) {
+  // Avisa só quando o uso volta de ACIMA da média; a passagem para acima fica
+  // só na status line (🔴), sem toast.
+  if (ultimaSituacao === 'acima' && ritmo.situacao !== 'acima') {
     $.ui.toast(
-      estaAcima
-        ? `🔴 Quota semanal ACIMA da média: ${ritmo.usado}% usado, esperado ${ritmo.esperado.toFixed(1)}%`
-        : `🟢 Quota semanal voltou para ${ritmo.situacao === 'abaixo' ? 'abaixo' : 'dentro'} da média`,
+      `🟢 Quota semanal voltou para ${ritmo.situacao === 'abaixo' ? 'abaixo' : 'dentro'} da média`,
       { timeoutMs: 8000 },
     )
   }

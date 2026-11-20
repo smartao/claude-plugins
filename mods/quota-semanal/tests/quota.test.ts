@@ -52,7 +52,7 @@ const seteDias = (percentUsed: number): SessionRateLimit => ({
   resetsAt: new Date(RESET).toISOString(),
 })
 
-test('o mod atualiza a status line e avisa ao passar da média', async ($, on) => {
+test('o mod atualiza a status line e só avisa quando volta para a média', async ($, on) => {
   const clock = mock.clock(on, { now: INICIO + 2 * 24 * HORA }) // esperado 28.6%
   const status: (string | undefined)[] = []
   const toasts: string[] = []
@@ -75,17 +75,16 @@ test('o mod atualiza a status line e avisa ao passar da média', async ($, on) =
   expect(status.at(-1)).toContain('🟢 7d 20%')
   expect(toasts).toEqual([])
 
-  // Um turno gastou bastante: passa para acima da média
+  // Um turno gastou bastante: passa para acima da média, só na status line
   await $.session.measure({ context: CONTEXTO, rateLimits: [seteDias(35)], changed: ['rateLimits'] })
   expect(status.at(-1)).toContain('🔴 7d 35%')
-  expect(toasts).toHaveLength(1)
-  expect(toasts[0]).toContain('ACIMA da média')
+  expect(toasts).toEqual([])
 
   // O tempo passa sem uso: o esperado alcança os 35% e a linha volta a ficar verde
   await clock.advance(24 * HORA)
   expect(status.at(-1)).toContain('🟢 7d 35%')
-  expect(toasts).toHaveLength(2)
-  expect(toasts[1]).toContain('voltou para dentro')
+  expect(toasts).toHaveLength(1)
+  expect(toasts[0]).toContain('voltou para dentro')
 })
 
 test('sem leitura de quota, mostra que está aguardando', async ($, on) => {
