@@ -16,13 +16,13 @@ function lerJanela(limites: SessionRateLimit[]): SessionRateLimit | undefined {
 
 async function atualizar($: EngineInterface): Promise<void> {
   if (leitura === undefined || leitura.resetsAt === undefined) {
-    $.ui.status('⏳ Quota 7d: aguardando a primeira resposta do Claude')
+    $.ui.status('⏳ 7d aguardando 1ª resposta')
     return
   }
 
   const resetaEm = Date.parse(leitura.resetsAt)
   if (Number.isNaN(resetaEm)) {
-    $.ui.status(`Quota 7d: ${leitura.percentUsed}% (sem horário de reset)`)
+    $.ui.status(`7d ${leitura.percentUsed}% (sem reset)`)
     return
   }
 

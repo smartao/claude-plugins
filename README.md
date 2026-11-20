@@ -11,7 +11,7 @@ Marketplace local de mods para o Claude Code.
 Exemplo da status line:
 
 ```
-🟢 Quota 7d: 95% · esperado 97.8% · ABAIXO da média em 2.8 pts (esperado há 4 horas)
+🟢 7d 95% · esp 97.8% · -2.8 pts · 4h
 ```
 
 ## Instalação

@@ -14,25 +14,22 @@ export type Ritmo = {
   /** usado - esperado, em pontos percentuais */
   diferenca: number
   situacao: Situacao
-  /** "esperado há 4 horas" ou "esperado para 1 dia e 2 horas" */
-  quando: string
+  /** Distância até o momento em que o uso real seria o esperado: "5h", "1d12h", "<1h". */
+  tempo: string
 }
 
 const arred1 = (n: number) => Math.round(n * 10) / 10
 
-/** Formata milissegundos como "1 dia e 12 horas", igual ao fmt_extenso do script. */
-export function extenso(ms: number): string {
+/** Formata milissegundos de forma curta: "<1h", "5h", "1d", "1d12h". */
+export function curto(ms: number): string {
   const s = Math.floor(ms / 1000)
-  if (s < 3600) return 'menos de 1 hora'
+  if (s < 3600) return '<1h'
 
   const d = Math.floor(s / 86400)
   const h = Math.floor((s % 86400) / 3600)
-  const partes: string[] = []
 
-  if (d > 0) partes.push(`${d} dia${d > 1 ? 's' : ''}`)
-  if (h > 0 || d === 0) partes.push(`${h} hora${h !== 1 ? 's' : ''}`)
-
-  return partes.join(' e ')
+  if (d === 0) return `${h}h`
+  return h === 0 ? `${d}d` : `${d}d${h}h`
 }
 
 /**
@@ -50,19 +47,18 @@ export function calcularRitmo(usado: number, resetaEm: number, agora: number): R
 
   // momento em que o uso real seria o esperado: no futuro = adiantado, no passado = atrasado
   const dif = inicio + (usado / 100) * SEMANA_MS - agora
-  const quando = dif >= 0 ? `esperado para ${extenso(dif)}` : `esperado há ${extenso(-dif)}`
+  const tempo = curto(Math.abs(dif))
 
-  return { usado, esperado, diferenca, situacao, quando }
+  return { usado, esperado, diferenca, situacao, tempo }
 }
 
 const ICONE: Record<Situacao, string> = { acima: '🔴', abaixo: '🟢', dentro: '🟡' }
 
-/** Linha compacta para a status line. */
+/** Linha compacta para a status line: "🟢 7d 95% · esp 98.1% · -3.1 pts · 5h". */
 export function linhaStatus(r: Ritmo): string {
-  const situacao =
-    r.situacao === 'dentro'
-      ? 'dentro da média'
-      : `${r.situacao.toUpperCase()} da média em ${Math.abs(r.diferenca).toFixed(1)} pts`
+  const base = `${ICONE[r.situacao]} 7d ${r.usado}% · esp ${r.esperado.toFixed(1)}%`
+  if (r.situacao === 'dentro') return `${base} · na média`
 
-  return `${ICONE[r.situacao]} Quota 7d: ${r.usado}% · esperado ${r.esperado.toFixed(1)}% · ${situacao} (${r.quando})`
+  const sinal = r.diferenca > 0 ? '+' : '-'
+  return `${base} · ${sinal}${Math.abs(r.diferenca).toFixed(1)} pts · ${r.tempo}`
 }
