@@ -13,6 +13,11 @@
       "name": "contexto",
       "source": "./mods/contexto",
       "description": "Mostra o uso do contexto da conversa na status line e avisa ao passar de 90%, para você compactar na hora certa."
+    },
+    {
+      "name": "conventional-commits",
+      "source": "./mods/conventional-commits",
+      "description": "Bloqueia git commit cuja mensagem não segue Conventional Commits e explica ao Claude como corrigir."
     }
   ]
 }

@@ -1,0 +1,5 @@
+{
+  "name": "conventional-commits",
+  "version": "0.1.0",
+  "description": "Bloqueia git commit cuja mensagem não segue Conventional Commits e explica ao Claude como corrigir."
+}
