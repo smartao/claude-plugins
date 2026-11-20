@@ -1,11 +1,18 @@
 {
   "name": "smartao-mods",
-  "owner": { "name": "smartao" },
+  "owner": {
+    "name": "smartao"
+  },
   "plugins": [
     {
       "name": "quota-semanal",
       "source": "./mods/quota-semanal",
       "description": "Mostra na status line se o uso da quota semanal do Claude está acima ou abaixo do ritmo médio."
+    },
+    {
+      "name": "contexto",
+      "source": "./mods/contexto",
+      "description": "Mostra o uso do contexto da conversa na status line e avisa ao passar de 90%, para você compactar na hora certa."
     }
   ]
 }

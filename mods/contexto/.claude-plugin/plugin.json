@@ -1,0 +1,5 @@
+{
+  "name": "contexto",
+  "version": "0.1.0",
+  "description": "Mostra o uso do contexto da conversa na status line e avisa ao passar de 90%, para você compactar na hora certa."
+}
