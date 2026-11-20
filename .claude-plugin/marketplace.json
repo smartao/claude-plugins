@@ -33,6 +33,11 @@
       "name": "turno-longo",
       "source": "./mods/turno-longo",
       "description": "Avisa com notificação do sistema e som quando um turno do Claude que passou de 2 minutos termina."
+    },
+    {
+      "name": "guarda-comandos",
+      "source": "./mods/guarda-comandos",
+      "description": "Bloqueia comandos destrutivos sem volta e pede sua confirmação para os perigosos: rm -r fora do projeto, git push --force, git reset --hard, escrita em .env e chaves."
     }
   ]
 }

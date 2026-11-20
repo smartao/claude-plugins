@@ -1,0 +1,5 @@
+{
+  "name": "guarda-comandos",
+  "version": "0.1.0",
+  "description": "Bloqueia comandos destrutivos sem volta e pede sua confirmação para os perigosos: rm -r fora do projeto, git push --force, git reset --hard, escrita em .env e chaves."
+}
