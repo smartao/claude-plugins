@@ -1,0 +1,5 @@
+{
+  "name": "quota-semanal",
+  "version": "0.1.0",
+  "description": "Mostra na status line se o uso da quota semanal do Claude está acima ou abaixo do ritmo médio."
+}

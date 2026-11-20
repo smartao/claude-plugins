@@ -1,0 +1,11 @@
+{
+  "name": "smartao-mods",
+  "owner": { "name": "smartao" },
+  "plugins": [
+    {
+      "name": "quota-semanal",
+      "source": "./mods/quota-semanal",
+      "description": "Mostra na status line se o uso da quota semanal do Claude está acima ou abaixo do ritmo médio."
+    }
+  ]
+}
