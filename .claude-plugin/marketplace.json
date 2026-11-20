@@ -18,6 +18,11 @@
       "name": "conventional-commits",
       "source": "./mods/conventional-commits",
       "description": "Bloqueia git commit cuja mensagem não segue Conventional Commits e explica ao Claude como corrigir."
+    },
+    {
+      "name": "teste-mods",
+      "source": "./mods/teste-mods",
+      "description": "Ao fim de cada turno que editou um mod, roda claude plugin validate e test nele e mostra o resultado na status line."
     }
   ]
 }
