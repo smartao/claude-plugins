@@ -7,10 +7,12 @@ export type Execucao = {
   estado: 'rodando' | 'ok' | 'falhou'
   /** Uma linha curta: "6/6 testes", "2 erros de tipo", "1 de 6 testes falhou". */
   resumo: string
+  /** As linhas que explicam a falha (arquivo:linha e mensagem); vazio quando passou. */
+  detalhe: string
 }
 
 declare module 'claude-code' {
   interface PluginState {
-    'teste-mods': { execucoes: Execucao[]; oculto: boolean; pendentes: string[] }
+    'teste-mods': { execucoes: Shaped<Execucao[]>; oculto: boolean; pendentes: string[] }
   }
 }
