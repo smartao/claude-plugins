@@ -23,6 +23,11 @@
       "name": "teste-mods",
       "source": "./mods/teste-mods",
       "description": "Ao fim de cada turno que editou um mod, roda claude plugin validate e test nele e mostra o resultado na status line."
+    },
+    {
+      "name": "painel-consumo",
+      "source": "./mods/painel-consumo",
+      "description": "Painel ao lado do chat com quota 5h e 7d e seu ritmo, contexto, custo estimado, tokens e taxa de cache da sessão."
     }
   ]
 }

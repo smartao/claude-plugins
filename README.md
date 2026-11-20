@@ -10,6 +10,7 @@ Marketplace local de mods para o Claude Code.
 | [contexto](mods/contexto) | Mostra o uso do contexto da conversa na status line só a partir de 75% (🟡 de 75% a 89%, 🔴 a partir de 90%) e avisa com um toast ao passar de 90%, para você rodar `/compact` na hora certa. |
 | [conventional-commits](mods/conventional-commits) | Barra os `git commit -m` do Claude cuja mensagem não segue `<tipo>(<escopo>): <descrição>` (tipos `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `style`, `perf`, `build`, `ci`, `revert`) e exige o rodapé `BREAKING CHANGE:` quando há `!`. A recusa explica ao Claude o que corrigir. Commits sem mensagem na linha de comando (editor, `-F`, `--no-edit`) e os gerados pelo git (`Merge`, `fixup!`) passam direto. |
 | [teste-mods](mods/teste-mods) | Quando um turno do Claude edita arquivos de um mod (qualquer pasta com `.claude-plugin/plugin.json`), roda `claude plugin validate` e `claude plugin test` nele ao fim do turno. O resultado aparece na status line (`🧪 ✅ contexto 2/2 testes`) e numa faixa acima do prompt no terminal e no app desktop. Falhas e erros de tipo geram um toast e ficam visíveis até a próxima rodada; o ✅ some depois de 1 minuto. |
+| [painel-consumo](mods/painel-consumo) | Painel ao lado do chat (abre sozinho; `/consumo` reabre) com as quotas de 5h e 7d e o ritmo de cada uma, o contexto, o custo estimado da sessão, os tokens de entrada, saída e cache, a taxa de acerto do cache e os últimos turnos. No app desktop, minimizado, vira uma linha só. |
 
 Exemplo da status line:
 
@@ -26,6 +27,7 @@ claude plugin install quota-semanal@smartao-mods
 claude plugin install contexto@smartao-mods
 claude plugin install conventional-commits@smartao-mods
 claude plugin install teste-mods@smartao-mods
+claude plugin install painel-consumo@smartao-mods
 ```
 
 Como o marketplace é uma pasta local, o Claude Code lê os mods direto daqui:

@@ -1,0 +1,6 @@
+{
+  "name": "painel-consumo",
+  "version": "0.1.0",
+  "description": "Painel ao lado do chat com quota 5h e 7d e seu ritmo, contexto, custo estimado, tokens e taxa de cache da sessão.",
+  "types": "./types/index.d.ts"
+}
