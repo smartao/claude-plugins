@@ -38,6 +38,11 @@
       "name": "guarda-comandos",
       "source": "./mods/guarda-comandos",
       "description": "Bloqueia comandos destrutivos sem volta e pede sua confirmação para os perigosos: rm -r fora do projeto, git push --force, git reset --hard, escrita em .env e chaves."
+    },
+    {
+      "name": "persona",
+      "source": "./mods/persona",
+      "description": "/persona lista as personas da pasta personas/ do projeto e põe \"Claude, usando a persona @arquivo, \" no prompt com um clique ou pelo número."
     }
   ]
 }

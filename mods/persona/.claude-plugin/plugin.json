@@ -1,0 +1,6 @@
+{
+  "name": "persona",
+  "version": "0.1.0",
+  "description": "/persona lista as personas da pasta personas/ do projeto e põe \"Claude, usando a persona @arquivo, \" no prompt com um clique.",
+  "types": "./types/index.d.ts"
+}
