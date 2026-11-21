@@ -5,7 +5,7 @@ import { aviso } from './aviso'
 const SOM = '/usr/share/sounds/freedesktop/stereo/complete.oga'
 
 export const register: Register = (on, options) => {
-  const limiteMs = Number(options.limiteSegundos ?? 120) * 1000
+  const limiteMs = Number(options.limiteSegundos ?? 60) * 1000
   const comSom = options.som !== false
 
   on('turn.complete', async ($, e, next) => {
