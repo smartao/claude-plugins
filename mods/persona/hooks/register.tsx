@@ -2,10 +2,13 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, RenderSurface } from 'claude-code'
 
 import type { Persona } from '../types'
-import { aplicar, escolher, IGNORAR, lerPersona, ordenar, relativo, rotulo } from './personas'
+import {
+  aplicar, CORES, escolher, extrair, focosDoReadme, IGNORAR, lerPersona, NOMES_GRUPO, ordenar, relativo, rotulo,
+} from './personas'
 
 // Mude o `shape` quando os campos de Persona mudarem: descarta o que uma versão antiga guardou.
-const lista = atom({ plugin: 'persona', key: 'lista' } as const, [], { shape: 'persona-1' })
+const lista = atom({ plugin: 'persona', key: 'lista' } as const, [], { shape: 'persona-2' })
+const marcadas = atom({ plugin: 'persona', key: 'marcadas' } as const, [])
 
 const COMANDO = 'persona'
 const PAINEL = 'persona'
@@ -61,14 +64,23 @@ async function carregar($: EngineInterface): Promise<Persona[]> {
   const achadas: Persona[] = []
   for (const pasta of pastas) {
     const itens = await $.fs.list(pasta).catch(() => [])
+    const readme = itens.find(i => i.kind === 'file' && /^readme\.md$/i.test(i.name))
+    const focos = readme ? focosDoReadme(await $.fs.read(`${pasta}/${readme.name}`).catch(() => '')) : new Map<string, string>()
     for (const item of itens) {
-      if (item.kind !== 'file' || !/\.md$/i.test(item.name) || /^readme\.md$/i.test(item.name)) continue
+      if (item.kind !== 'file' || !/\.md$/i.test(item.name) || item === readme) continue
       const absoluto = `${pasta}/${item.name}`
       const conteudo = await $.fs.read(absoluto, { length: 4096 }).catch(() => '')
-      achadas.push(lerPersona(item.name, conteudo, relativo(cwd, absoluto), relativo(cwd, pasta)))
+      achadas.push(lerPersona(item.name, conteudo, relativo(cwd, absoluto), relativo(cwd, pasta), focos.get(item.name)))
     }
   }
   return ordenar(achadas)
+}
+
+/** Guarda quais personas o rascunho cita, só quando mudou, para o painel marcar com ✓. */
+async function marcar($: EngineInterface, rascunho: string): Promise<void> {
+  const agora = extrair(rascunho)
+  const antes = await read($, marcadas)
+  if (agora.length !== antes.length || agora.some((c, i) => c !== antes[i])) await update($, marcadas, () => agora)
 }
 
 /** Põe as personas no começo do prompt, mantendo o que já estava escrito; sem campo de prompt, copia. */
@@ -76,17 +88,20 @@ async function usar($: EngineInterface, escolhidas: readonly Persona[], surface?
   const caixa = await $.prompt.read().catch(() => undefined)
   const texto = aplicar(caixa?.text ?? '', escolhidas.map(p => p.caminho))
   const preenchido = await $.prompt.fill({ text: texto, mode: 'replace' }).catch(() => undefined)
-  if (preenchido?.isFilled) return
+  if (preenchido?.isFilled) return marcar($, texto)
   const copiado = await $.ui.copy({ text: texto, surface }).catch(() => undefined)
   $.ui.toast(copiado?.isCopied ? 'Persona copiada: cole no prompt com Ctrl+V' : 'Não consegui colocar a persona no prompt')
 }
 
 /** A lista em texto, para quando o painel não abre ou o argumento não bate. */
 const listaEmTexto = (personas: readonly Persona[]) =>
-  personas.map(p => `  ${rotulo(p)}  (${p.caminho})`).join('\n')
+  personas.map(p => `  ${p.icone} ${rotulo(p)}${p.foco ? ` — ${p.foco}` : ''}`).join('\n')
 
 const semPersonas = (cwd: string) =>
   `Nenhuma persona encontrada: crie uma pasta personas/ com um .md por persona em ${cwd}.`
+
+/** A tecla que escolhe a persona com o painel em foco: o próprio número, de 1 a 9. */
+const tecla = (p: Persona) => (p.numero !== null && p.numero >= 1 && p.numero <= 9 ? String(p.numero) : undefined)
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
@@ -112,7 +127,7 @@ export const register: Register = on => {
       // Fora do comando: o campo do prompt só fica livre depois que o comando termina.
       $.clock.after(0, () => void usar($, achadas))
       const aviso = faltando.length > 0 ? ` (sem persona para: ${faltando.join(', ')})` : ''
-      return { text: `No prompt: ${achadas.map(rotulo).join(', ')}${aviso}` }
+      return { text: `No prompt: ${achadas.map(p => `${p.icone} ${rotulo(p)}`).join(', ')}${aviso}` }
     }
 
     const aberto = await $.ui.open({ id: PAINEL, title: TITULO })
@@ -120,24 +135,81 @@ export const register: Register = on => {
     return { text: `Personas do projeto (use /persona <número>):\n${listaEmTexto(personas)}` }
   })
 
+  // O ✓ do painel acompanha o prompt: some quando a pessoa apaga a persona ou envia.
+  on('prompt.edit', async ($, e, next) => {
+    const resultado = await next(e)
+    await marcar($, resultado.text)
+    return resultado
+  })
+
+  on('prompt.submit', async ($, e, next) => {
+    const resultado = await next(e)
+    await marcar($, '')
+    return resultado
+  })
+
   on('ui.render', { component: 'Pane', requestId: PAINEL }, async ($, e) => {
     const { Box, Button, Text } = $.ui.resolve(e)
     const personas = await read($, lista)
+    const noPrompt = new Set(await read($, marcadas))
     const pastas = [...new Set(personas.map(p => p.pasta))]
+    const grupos = (['usuario', 'tecnica', 'negocio'] as const).filter(g => personas.some(p => p.grupo === g))
+    const terminal = e.surface === 'terminal'
+    const dica = `Clique para pôr no começo do prompt; clique em outra para somar.${terminal ? ' Teclas 1–9 com o painel em foco.' : ''}`
 
     return (
       <Box flexDirection="column">
         {personas.length === 0 && <Text dimColor>Nenhuma persona encontrada neste projeto.</Text>}
-        {personas.length > 0 && <Text dimColor>Clique para pôr no começo do prompt; clique em outra para somar.</Text>}
+        {personas.length > 0 && <Text dimColor>{dica}</Text>}
+        {grupos.length > 0 && (
+          <Text>
+            {grupos.map(g => (
+              <Text color={CORES[g]}>● {NOMES_GRUPO[g]}   </Text>
+            ))}
+          </Text>
+        )}
         {pastas.map(pasta => (
           <Box flexDirection="column">
             <Text> </Text>
             <Text bold>{pasta}</Text>
             {personas
               .filter(p => p.pasta === pasta)
-              .map(p => (
-                <Button key={`p:${p.caminho}`} label={rotulo(p)} onPress={press => usar($, [p], press.surface)} />
-              ))}
+              .map(p => {
+                const marcada = noPrompt.has(p.caminho)
+                const atalho = tecla(p)
+                const escolher = (press: { surface: RenderSurface }) => usar($, [p], press.surface)
+                const foco = p.foco !== '' && <Text dimColor>{`      ${p.foco}`}</Text>
+
+                if (!terminal) {
+                  // Desktop e VSCode desenham botão nativo só com o label: número, ícone
+                  // e ✓ ficam fora dele, como texto, que lá aceita cor.
+                  return (
+                    <Box flexDirection="column">
+                      <Box>
+                        <Text color={p.cor} bold>{String(p.numero ?? '').padStart(2)}</Text>
+                        <Text>{` ${p.icone} `}</Text>
+                        <Button key={`p:${p.caminho}`} label={p.titulo} hotkey={atalho} variant="secondary" onPress={escolher} />
+                        <Text color="green" bold>{marcada ? ' ✓' : ''}</Text>
+                      </Box>
+                      {foco}
+                    </Box>
+                  )
+                }
+
+                // Com atalho, o terminal já escreve "1: " antes do botão; sem, o número vem aqui.
+                const numero = atalho !== undefined || p.numero === null ? '' : `${p.numero}: `
+                return (
+                  <Box flexDirection="column">
+                    <Button key={`p:${p.caminho}`} label={rotulo(p)} hotkey={atalho} plain onPress={escolher}>
+                      <Text dimColor>{numero}</Text>
+                      <Text color={p.cor}>{`${p.icone} `}</Text>
+                      <Text bold>{p.titulo}</Text>
+                      <Text color="green">{marcada ? ' ✓' : ''}</Text>
+                    </Button>
+                    {foco}
+                  </Box>
+                )
+              })}
           </Box>
         ))}
         <Text> </Text>
