@@ -54,9 +54,24 @@ export function calcularRitmo(usado: number, resetaEm: number, agora: number): R
 
 const ICONE: Record<Situacao, string> = { acima: '🔴', abaixo: '🟢', dentro: '🟡' }
 
-/** Linha compacta para a status line: "🟢 7d 95% · esp 98.1% · -3.1 pts · 5h". */
+/** Diferença (em pontos, em módulo) a partir da qual a seta é dobrada: ▲▲ / ▼▼. */
+export const LIMITE_DUPLA = 10
+
+/** Diferença (em pontos, em módulo) a partir da qual a seta é tripla: ▲▲▲ / ▼▼▼. */
+export const LIMITE_TRIPLA = 15
+
+/** Direção e intensidade do desvio: "▲", "▲▲▲", "▼▼", ou "=" quando está na média. */
+export function setas(r: Ritmo): string {
+  if (r.situacao === 'dentro') return '='
+
+  const desvio = Math.abs(r.diferenca)
+  const qtd = desvio >= LIMITE_TRIPLA ? 3 : desvio >= LIMITE_DUPLA ? 2 : 1
+  return (r.situacao === 'acima' ? '▲' : '▼').repeat(qtd)
+}
+
+/** Linha compacta para a status line: "🟢▼ 7d 95% · esp 98.1% · -3.1 pts · 5h". */
 export function linhaStatus(r: Ritmo): string {
-  const base = `${ICONE[r.situacao]} 7d ${r.usado}% · esp ${r.esperado.toFixed(1)}%`
+  const base = `${ICONE[r.situacao]}${setas(r)} 7d ${r.usado}% · esp ${r.esperado.toFixed(1)}%`
   if (r.situacao === 'dentro') return `${base} · na média`
 
   const sinal = r.diferenca > 0 ? '+' : '-'
